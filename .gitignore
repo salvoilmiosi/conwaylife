@@ -1,0 +1,5 @@
+bin/conwaylife
+options.txt
+*.exe
+*.d
+*.o

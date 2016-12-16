@@ -20,8 +20,8 @@ GLOBAL_VARS
 const char *const FILENAME = "options.txt";
 const char *const FIRST_LINE = "Game of Life: Options file";
 
-void readOptions();
-void saveOptions();
+void readOptions(const char *path);
+void saveOptions(const char *path);
 
 #endif // __GLOBALVARS_H
 

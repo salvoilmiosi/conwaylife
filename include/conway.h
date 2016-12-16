@@ -3,7 +3,7 @@
 
 #include "SDL2/SDL.h"
 
-bool initGrid();
+bool initGrid(const char *filename);
 void gridCleanUp();
 
 void tick(const Uint8 *keysHeld);

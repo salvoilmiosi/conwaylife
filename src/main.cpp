@@ -28,12 +28,17 @@ inline void cleanUp() {
 }
 
 int main(int argc, char **argv) {
-    readOptions();
+    readOptions(argv[0]);
 
     if (CHUNK_SIZE <= 0) CHUNK_SIZE = 1;
     if (FPS < 0) FPS = 0;
 
-    if (!initGrid()) return 2;
+    const char *filename = nullptr;
+    if (argc > 1) {
+    	filename = argv[1];
+    }
+
+    if (!initGrid(filename)) return 2;
     if (!init()) return 1;
 
 	bool quit = false;
@@ -77,7 +82,7 @@ int main(int argc, char **argv) {
     }
 
 	cleanUp();
-	saveOptions();
+	saveOptions(argv[0]);
     return 0;
 }
 

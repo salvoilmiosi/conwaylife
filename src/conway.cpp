@@ -10,7 +10,8 @@
 
 #include <set>
 #include <iostream>
-#include <windows.h>
+
+#include "gui.h"
 
 std::set<chunk *> chunks;
 #define ITERATE_CHUNKS(i) for (std::set<chunk *>::iterator i = chunks.begin(); i != chunks.end(); ++i)
@@ -35,36 +36,26 @@ static cell *getCellAt(int x, int y) {
 }
 
 static bool getGridFilename(char *filename, int strSize) {
-	OPENFILENAME ofn;
-	ZeroMemory(&ofn, sizeof(ofn));
-
-	ofn.lStructSize = sizeof(ofn);
-	ofn.hwndOwner = NULL;
-	ofn.lpstrFile = filename;
-	ofn.nMaxFile = strSize;
-	ofn.lpstrFilter = "Bitmaps (*.bmp)\0*.bmp\0All files (*.*)\0*.*\0";
-	ofn.nFilterIndex = 1;
-	ofn.lpstrFileTitle = NULL;
-	ofn.nMaxFileTitle = 0;
-	ofn.lpstrInitialDir = NULL;
-	ofn.Flags |= OFN_NOCHANGEDIR;
-
-	return GetOpenFileName(&ofn);
+	return filename_popup(filename, "Bitmaps (*.bmp)\0*.bmp\0All files (*.*)\0*.*\0");
 }
 
-bool initGrid() {
+bool initGrid(const char *filename) {
 	gridCleanUp();
 
 	char gridFilename[100];
 	memset(gridFilename, 0, sizeof(gridFilename));
 
-	if (!getGridFilename(gridFilename, sizeof(gridFilename))) return false;
+	if (filename) {
+		strncpy(gridFilename, filename, 100);
+	} else if (!getGridFilename(gridFilename, sizeof(gridFilename))) {
+		return false;
+	}
 
 	cell_grid *g = loadGrid(gridFilename);
 	if (g == NULL) {
 		char errorMsg[100] = "Error: can't open file\n";
 		strncat(errorMsg, gridFilename, sizeof(errorMsg));
-		MessageBox(NULL, errorMsg, "Error", MB_OK | MB_ICONERROR);
+		message_box_error(errorMsg);
 		return false;
 	}
 
