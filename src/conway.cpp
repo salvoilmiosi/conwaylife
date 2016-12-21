@@ -35,21 +35,11 @@ static cell *getCellAt(int x, int y) {
 	return getChunkAt(x, y)->getCellAt(x, y);
 }
 
-static bool getGridFilename(char *filename, int strSize) {
-	return filename_popup(filename, "Bitmaps (*.bmp)\0*.bmp\0All files (*.*)\0*.*\0");
-}
-
 bool initGrid(const char *filename) {
 	gridCleanUp();
 
-	char gridFilename[100];
-	memset(gridFilename, 0, sizeof(gridFilename));
-
-	if (filename) {
-		strncpy(gridFilename, filename, 100);
-	} else if (!getGridFilename(gridFilename, sizeof(gridFilename))) {
-		return false;
-	}
+	char *gridFilename = filename_popup("Bitmaps (*.bmp)\0*.bmp\0All files (*.*)\0*.*\0");
+	if (!gridFilename) return false;
 
 	cell_grid *g = loadGrid(gridFilename);
 	if (g == NULL) {

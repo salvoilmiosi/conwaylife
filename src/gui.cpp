@@ -4,14 +4,16 @@
 
 #include <windows.h>
 
-bool filename_popup(char *filename, const char *filter) {
+char *filename_popup(const char *filter) {
+	static char filename[MAX_PATH];
+
 	OPENFILENAME ofn;
 	ZeroMemory(&ofn, sizeof(ofn));
 
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = NULL;
 	ofn.lpstrFile = filename;
-	ofn.nMaxFile = strSize;
+	ofn.nMaxFile = MAX_PATH;
 	ofn.lpstrFilter = filter;
 	ofn.nFilterIndex = 1;
 	ofn.lpstrFileTitle = NULL;
@@ -19,7 +21,11 @@ bool filename_popup(char *filename, const char *filter) {
 	ofn.lpstrInitialDir = NULL;
 	ofn.Flags |= OFN_NOCHANGEDIR;
 
-	return GetOpenFileName(&ofn);
+	if (GetOpenFileName(&ofn)) {
+		return filename;
+	} else {
+		return nullptr;
+	}
 }
 
 void message_box_error(const char *message) {
@@ -30,9 +36,9 @@ void message_box_error(const char *message) {
 
 #include <cstdio>
 
-bool filename_popup(char *filename, const char *filter) {
+char *filename_popup(const char *filter) {
 	message_box_error("I have no idea how to open a OpenFileName dialog in linux.");
-	return false;
+	return nullptr;
 }
 
 void message_box_error(const char *message) {
