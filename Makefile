@@ -3,7 +3,7 @@ LD = g++
 CFLAGS = -g -Wall --std=c++11
 
 LDFLAGS =
-LIBS = -lSDL2 -lSDL2_image
+LIBS = -lSDL2
 
 INCLUDE = include
 BIN_DIR = bin
@@ -32,7 +32,6 @@ all: $(BIN_DIR)/$(OUT_BIN)
 clean:
 	rm -rf $(BIN_DIR)
 	rm -rf $(OBJ_DIR)
-	$(MAKE) -C $(SDL_draw_dir) clean
 
 $(BIN_DIR)/$(OUT_BIN): $(OBJECTS)
 	$(LD) -o $(BIN_DIR)/$(OUT_BIN) $(OBJECTS) $(LDFLAGS) $(LIBS)

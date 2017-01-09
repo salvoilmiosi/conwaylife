@@ -13,8 +13,8 @@
 
 #include "gui.h"
 
-std::set<chunk *> chunks;
-#define ITERATE_CHUNKS(i) for (std::set<chunk *>::iterator i = chunks.begin(); i != chunks.end(); ++i)
+typedef std::set<chunk *> chunk_set;
+chunk_set chunks;
 
 static int xo = 0;
 static int yo = 0;
@@ -22,13 +22,13 @@ static int yo = 0;
 static chunk *getChunkAt(int x, int y) {
 	int xx = (x / CHUNK_SIZE) * CHUNK_SIZE; if (x<0) xx -= CHUNK_SIZE -1;
 	int yy = (y / CHUNK_SIZE) * CHUNK_SIZE; if (y<0) yy -= CHUNK_SIZE -1;
-	ITERATE_CHUNKS(i) {
-		chunk *c = *i;
-		if (c->isChunk(xx, yy)) return c;
+	for(chunk *c : chunks) {
+		if (c && c->isChunk(xx, yy)) return c;
 	}
 	chunk *c = new chunk(xx, yy);
 	chunks.insert(c);
 	return c;
+	// inefficiente
 }
 
 static cell *getCellAt(int x, int y) {
@@ -76,19 +76,19 @@ bool initGrid(const char *filename) {
 }
 
 void gridCleanUp() {
-	ITERATE_CHUNKS(i) {
-		delete *i;
+	for (auto c : chunks) {
+		delete c;
 	}
 	chunks.clear();
 }
 
 void countCells() {
-	ITERATE_CHUNKS(ci) {
-		(*ci)->resetCount();
+	for (chunk *c : chunks) {
+		if(c) c->resetCount();
 	}
 
-	ITERATE_CHUNKS(ci) {
-		chunk *ch = *ci;
+	for (chunk *ch : chunks) {
+		if (!ch) continue;
 		for (int y=0; y<ch->height(); ++y) {
 			for (int x=0; x<ch->width(); ++x) {
 				cell *c = ch->getItem(x, y);
@@ -112,15 +112,16 @@ void countCells() {
 
 void step() {
 	countCells();
-	ITERATE_CHUNKS(i) {
-		chunk *c = *i;
-		if (c->isEmpty()) {
-			chunks.erase(c);
+	auto it = chunks.begin();
+	while (it != chunks.end()) {
+		chunk *c = *it;
+		if (!c || c->isEmpty()) {
+			it = chunks.erase(it);
 			delete c;
+		} else {
+			c->tick();
+			++it;
 		}
-	}
-	ITERATE_CHUNKS(ci) {
-		(*ci)->tick();
 	}
 }
 
@@ -154,9 +155,7 @@ void render(SDL_Surface *screen) {
 
 	SDL_FillRect(screen, &screen->clip_rect, DRAW_CHUNKS ? COLOR_BG : COLOR_DEAD);
 
-	ITERATE_CHUNKS(ci) {
-		chunk *ch = *ci;
-
+	for (chunk *ch : chunks) {
 		if ((ch->x + ch->w) * CELL_SIZE + xo < 0 || ch->x * CELL_SIZE + xo >= SCREEN_W) continue;
 		if ((ch->y + ch->h) * CELL_SIZE + yo < 0 || ch->y * CELL_SIZE + yo >= SCREEN_H) continue;
 
