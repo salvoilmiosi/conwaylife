@@ -11,7 +11,7 @@
 #include <set>
 #include <iostream>
 
-#include "gui.h"
+#include "tinyfiledialogs.h"
 
 typedef std::set<chunk *> chunk_set;
 chunk_set chunks;
@@ -38,14 +38,16 @@ static cell *getCellAt(int x, int y) {
 bool initGrid(const char *filename) {
 	gridCleanUp();
 
-	char *gridFilename = filename_popup("Bitmaps (*.bmp)\0*.bmp\0All files (*.*)\0*.*\0");
+	const char *FILTERS[] = {"*.bmp"};
+	const char *DESCRIPTIONS = "Bitmaps";
+	const char *gridFilename = tinyfd_openFileDialog("Conway", "", 1, FILTERS, DESCRIPTIONS, 0);
 	if (!gridFilename) return false;
 
 	cell_grid *g = loadGrid(gridFilename);
 	if (g == NULL) {
 		char errorMsg[100] = "Error: can't open file\n";
 		strncat(errorMsg, gridFilename, sizeof(errorMsg));
-		message_box_error(errorMsg);
+		tinyfd_messageBox("Conway", errorMsg, "ok", "error", 1);
 		return false;
 	}
 
