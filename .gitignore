@@ -3,3 +3,4 @@ options.txt
 *.exe
 *.d
 *.o
+*.a

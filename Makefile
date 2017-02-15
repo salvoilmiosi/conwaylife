@@ -17,6 +17,7 @@ OUT_BIN = conwaylife
 
 ifeq ($(OS),Windows_NT)
 	LDFLAGS += -mwindows -lmingw32 -lSDL2main
+	LIBS += -lole32
 	OUT_BIN := $(OUT_BIN).exe
 	MAKE := mingw32-make
 endif
