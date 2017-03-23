@@ -5,9 +5,15 @@
 
 #include "globalvars.h"
 
+inline int abs(int n) {
+	return n>0 ? n : -n;
+}
+
 class chunk: public cell_grid {
 private:
 	int x, y;
+
+	static int max_x;
 
 public:
 	chunk(int x, int y);
@@ -23,6 +29,10 @@ public:
 	void tick();
 
 	bool isEmpty();
+
+	static int row_size() {
+		return max_x + 1;
+	}
 
 	friend void render(struct SDL_Surface *surface);
 	friend void countCells();

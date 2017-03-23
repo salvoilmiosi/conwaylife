@@ -8,13 +8,36 @@
 
 #include "chunk.h"
 
-#include <set>
+#include <map>
 #include <iostream>
 
 #include "tinyfiledialogs.h"
 
-typedef std::set<chunk *> chunk_set;
-chunk_set chunks;
+struct point {
+	int x,y;
+	point(int x, int y) : x(x), y(y) {}
+	int quadrant() const {
+		if (x > 0) {
+			return y > 0 ? 0 : 3;
+		} else {
+			return y > 0 ? 1 : 2;
+		}
+	}
+	int position() const {
+		return abs(y) * chunk::row_size() + abs(x);
+	}
+};
+
+bool operator < (const point & pt1, const point & pt2) {
+	// order by quadrants, then by position
+	if (pt1.quadrant() == pt2.quadrant()) {
+		return pt1.position() < pt2.position();
+	} else {
+		return pt1.quadrant() < pt2.quadrant();
+	}
+}
+
+std::map<point, chunk *> chunks;
 
 static int xo = 0;
 static int yo = 0;
@@ -22,13 +45,11 @@ static int yo = 0;
 static chunk *getChunkAt(int x, int y) {
 	int xx = (x / CHUNK_SIZE) * CHUNK_SIZE; if (x<0) xx -= CHUNK_SIZE -1;
 	int yy = (y / CHUNK_SIZE) * CHUNK_SIZE; if (y<0) yy -= CHUNK_SIZE -1;
-	for(chunk *c : chunks) {
+	try {
+		chunk *c = chunks.at(point(xx,yy));
 		if (c && c->isChunk(xx, yy)) return c;
-	}
-	chunk *c = new chunk(xx, yy);
-	chunks.insert(c);
-	return c;
-	// inefficiente
+	} catch (std::out_of_range) {}
+	return chunks[point(xx,yy)] = new chunk(xx, yy);
 }
 
 static cell *getCellAt(int x, int y) {
@@ -68,18 +89,20 @@ bool initGrid(const char *filename) {
 }
 
 void gridCleanUp() {
-	for (auto c : chunks) {
-		delete c;
+	for (auto &c : chunks) {
+		delete c.second;
 	}
 	chunks.clear();
 }
 
 void countCells() {
-	for (chunk *c : chunks) {
+	for (auto &i : chunks) {
+		chunk *c = i.second;
 		if(c) c->resetCount();
 	}
 
-	for (chunk *ch : chunks) {
+	for (auto &i : chunks) {
+		chunk *ch = i.second;
 		if (!ch) continue;
 		for (int y=0; y<ch->height(); ++y) {
 			for (int x=0; x<ch->width(); ++x) {
@@ -106,7 +129,7 @@ void step() {
 	countCells();
 	auto it = chunks.begin();
 	while (it != chunks.end()) {
-		chunk *c = *it;
+		chunk *c = it->second;
 		if (!c || c->isEmpty()) {
 			it = chunks.erase(it);
 			delete c;
@@ -147,7 +170,9 @@ void render(SDL_Surface *screen) {
 
 	SDL_FillRect(screen, &screen->clip_rect, DRAW_CHUNKS ? COLOR_BG : COLOR_DEAD);
 
-	for (chunk *ch : chunks) {
+	for (auto &p : chunks) {
+		chunk *ch = p.second;
+		if (!ch) continue;
 		if ((ch->x + ch->w) * CELL_SIZE + xo < 0 || ch->x * CELL_SIZE + xo >= SCREEN_W) continue;
 		if ((ch->y + ch->h) * CELL_SIZE + yo < 0 || ch->y * CELL_SIZE + yo >= SCREEN_H) continue;
 
