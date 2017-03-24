@@ -18,11 +18,11 @@ private:
 public:
 	chunk(int x, int y);
 
-	cell *getCellAt(int cx, int cy);
+	chunk(const chunk &c);
 
-	bool isChunk(int xx, int yy) {
-		return x==xx && y==yy;
-	}
+	chunk(chunk &&c);
+
+	cell *getCellAt(int cx, int cy);
 
 	void resetCount();
 

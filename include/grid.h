@@ -14,8 +14,23 @@ public:
         data = new T[w*h];
 	}
 
+	grid(const grid &g) {
+		w = g.w;
+		h = g.h;
+		data = new T[w*h];
+		memcpy(data, g.data, w*h*sizeof(T));
+	}
+
+	grid (grid &&g) {
+		w = g.w;
+		h = g.h;
+		data = g.data;
+		g.data = nullptr;
+	}
+
 	virtual ~grid() {
-		delete[] data;
+		if (data)
+			delete[] data;
 	}
 
 	T *getItem(int x, int y) {

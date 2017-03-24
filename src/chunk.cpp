@@ -8,9 +8,19 @@ chunk::chunk(int x, int y) : cell_grid(CHUNK_SIZE, CHUNK_SIZE), x(x),y(y) {
 	if (abs(x) > max_x) max_x = abs(x);
 }
 
+chunk::chunk(const chunk &c) : cell_grid(c) {
+	x = c.x;
+	y = c.y;
+}
+
+chunk::chunk(chunk &&c) : cell_grid(c) {
+	x = c.x;
+	y = c.y;
+}
+
 cell *chunk::getCellAt(int cx, int cy) {
-	if (cx < x || cx >= x+w) return NULL;
-	if (cy < y || cy >= y+h) return NULL;
+	if (cx < x || cx >= x+w) return nullptr;
+	if (cy < y || cy >= y+h) return nullptr;
 	return getItem(cx-x, cy-y);
 }
 
