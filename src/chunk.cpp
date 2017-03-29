@@ -2,7 +2,7 @@
 
 #include "SDL2/SDL.h"
 
-int chunk::max_x = 0;
+int chunk::max_x = 100;
 
 chunk::chunk(int x, int y) : cell_grid(CHUNK_SIZE, CHUNK_SIZE), x(x),y(y) {
 	if (abs(x) > max_x) max_x = abs(x);

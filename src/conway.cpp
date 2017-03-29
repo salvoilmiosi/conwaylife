@@ -117,6 +117,8 @@ void countCells() {
 					getCellAt(ax-1, ay+1)->addOne();
 					getCellAt(ax, ay+1)->addOne();
 					getCellAt(ax+1, ay+1)->addOne();
+
+					// I should really make the GPU do this.
 				}
 			}
 		}
@@ -175,7 +177,9 @@ void render(SDL_Surface *screen) {
 		if (DRAW_CHUNKS) {
 			SDL_Rect rct;
 			rct.x = (ch.x * CELL_SIZE) + xo;
+			if (ch.x < 0) rct.x -= CELL_SIZE;
 			rct.y = (ch.y * CELL_SIZE) + yo;
+			if (ch.y < 0) rct.y -= CELL_SIZE;
 			rct.w = ch.w * CELL_SIZE;
 			rct.h = ch.h * CELL_SIZE;
 			SDL_FillRect(screen, &rct, COLOR_DEAD);
